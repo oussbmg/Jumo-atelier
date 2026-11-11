@@ -49,6 +49,19 @@ jobs:
       - name: Run tests
         run: flutter test
 
+      - name: Disable Android lint-vital (crashes on JDK 17 inside plugins)
+        run: |
+          mkdir -p ~/.gradle/init.d
+          cat > ~/.gradle/init.d/no-lint-vital.gradle <<'GRADLE'
+          allprojects {
+            tasks.configureEach { t ->
+              if (t.name.startsWith("lintVital") || t.name.startsWith("lintAnalyzeRelease")) {
+                t.enabled = false
+              }
+            }
+          }
+          GRADLE
+
       - name: Build release APK
         run: flutter build apk --release
 
